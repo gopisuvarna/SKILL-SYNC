@@ -8,3 +8,4 @@ class DocumentsConfig(AppConfig):
 
     def ready(self):
         import apps.documents.signals  # noqa
+
