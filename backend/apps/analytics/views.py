@@ -1,6 +1,6 @@
 """Analytics API: skill distribution, match score, top roles, skill gaps, learning plan, job matches."""
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Prefetch, Count
 
@@ -9,17 +9,26 @@ from apps.roles.models import Role, RoleSkill
 from apps.jobs.models import Job, JobSkill
 from apps.recommendations.models import Course
 from core.services.embedding_service import encode_single
-from core.services.faiss_service import get_faiss_index
-from core.services.ranking_service import re_rank
-from core.services.skill_gap_service import compute_skill_gap
 from core.services.learning_recommendation_service import get_courses_for_skills
+from apps.roles.services import get_faiss_index, re_rank, compute_skill_gap
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def dashboard(request):
     """Optimized analytics: select_related / prefetch_related."""
     user = request.user
+    if not user or not getattr(user, "is_authenticated", False):
+        return Response({
+            'skill_distribution': [],
+            'match_score': 0.0,
+            'top_roles': [],
+            'skill_gaps': [],
+            'learning_plan': [],
+            'job_matches': [],
+            'authenticated': False,
+        })
+
     user_skills = list(UserSkill.objects.filter(user=user).select_related('skill').values('skill_id', 'skill__name'))
     user_skill_ids = {str(s['skill_id']) for s in user_skills}
     user_skill_names = [s['skill__name'] for s in user_skills]
@@ -76,4 +85,5 @@ def dashboard(request):
         'skill_gaps': skill_gaps,
         'learning_plan': learning_plan,
         'job_matches': job_matches,
+        'authenticated': True,
     })

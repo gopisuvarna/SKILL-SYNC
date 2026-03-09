@@ -2,8 +2,7 @@
 import logging
 from django.db import transaction
 from core.services.adzuna_service import fetch_jobs
-from core.services.skill_extractor import extract_skills
-
+from apps.skills.services import extract_skills, normalize_skill
 from apps.jobs.models import Job, JobSkill
 from apps.skills.models import Skill
 
@@ -11,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 def _get_or_create_skill(name: str) -> Skill:
-    from core.services.skill_extractor import normalize_skill
     nm = normalize_skill(name)
     skill, _ = Skill.objects.get_or_create(normalized_name=nm.lower(), defaults={'name': nm})
     return skill

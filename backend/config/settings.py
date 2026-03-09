@@ -13,10 +13,10 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, []),
     CORS_ALLOWED_ORIGINS=(list, []),
     DATABASE_URL=(str, 'postgresql://localhost/skill_gap_analyzer_db'),
-    AWS_ACCESS_KEY_ID=(str, ''),
-    AWS_SECRET_ACCESS_KEY=(str, ''),
-    AWS_STORAGE_BUCKET_NAME=(str, ''),
-    AWS_S3_REGION=(str, 'us-east-1'),
+    # AWS_ACCESS_KEY_ID=(str, ''),
+    # AWS_SECRET_ACCESS_KEY=(str, ''),
+    # AWS_STORAGE_BUCKET_NAME=(str, ''),
+    # AWS_S3_REGION=(str, 'us-east-1'),
     JWT_ACCESS_EXPIRY=(int, 900),
     JWT_REFRESH_EXPIRY=(int, 604800),
     GOOGLE_AI_API_KEY=(str, ''),
@@ -105,7 +105,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -146,14 +146,17 @@ COOKIE_CONFIG = {
     'MAX_AGE_REFRESH': env('JWT_REFRESH_EXPIRY'),
 }
 
-AWS_STORAGE_CONFIG = {
-    'ACCESS_KEY_ID': env('AWS_ACCESS_KEY_ID'),
-    'SECRET_ACCESS_KEY': env('AWS_SECRET_ACCESS_KEY'),
-    'BUCKET_NAME': env('AWS_STORAGE_BUCKET_NAME'),
-    'REGION': env('AWS_S3_REGION'),
-    'SIGNATURE_VERSION': 's3v4',
-    'EXPIRATION': 3600,
-}
+# AWS_STORAGE_CONFIG = {
+#     'ACCESS_KEY_ID': env('AWS_ACCESS_KEY_ID'),
+#     'SECRET_ACCESS_KEY': env('AWS_SECRET_ACCESS_KEY'),
+#     'BUCKET_NAME': env('AWS_STORAGE_BUCKET_NAME'),
+#     'REGION': env('AWS_S3_REGION'),
+#     'SIGNATURE_VERSION': 's3v4',
+#     'EXPIRATION': 3600,
+# }
+
+SUPABASE_URL = env("SUPABASE_URL")
+SUPABASE_KEY = env("SUPABASE_KEY")
 
 EMBEDDING_CONFIG = {
     'MODEL_NAME': 'all-MiniLM-L6-v2',
@@ -166,6 +169,13 @@ ADZUNA_CONFIG = {
     'BASE_URL': 'https://api.adzuna.com/v1/api/jobs',
 }
 
-GOOGLE_AI_CONFIG = {
-    'API_KEY': env('GOOGLE_AI_API_KEY'),
+# GOOGLE_API_KEY = env("GOOGLE_API_KEY")
+# GOOGLE_AI_CONFIG = {
+#     'API_KEY': env('GOOGLE_API_KEY'),
+# }
+#GOOGLE_API_KEY='AIzaSyByVYe0l3eM_W_Km_2mFpXOrUgyLFnJ69U'
+GROQ_API_KEY = env("GROQ_API_KEY")
+
+GROQ_CONFIG = {
+    "API_KEY": GROQ_API_KEY,
 }

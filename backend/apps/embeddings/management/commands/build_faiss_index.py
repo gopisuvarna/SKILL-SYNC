@@ -6,7 +6,7 @@ from django.db.models import Prefetch
 from apps.roles.models import Role, RoleSkill
 from apps.embeddings.models import RoleEmbedding
 from core.services.embedding_service import encode
-from core.services.faiss_service import FAISSRoleIndex
+from apps.roles.services import FAISSRoleIndex
 
 logger = logging.getLogger(__name__)
 

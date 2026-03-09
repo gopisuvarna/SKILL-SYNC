@@ -5,14 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction
 
-from core.services.skill_extractor import extract_skills
 from apps.documents.models import Document
 from .models import Skill, UserSkill
 from .serializers import SkillSerializer, UserSkillSerializer
+from .services import extract_skills, normalize_skill
 
 
 def get_or_create_skill(name: str):
-    from core.services.skill_extractor import normalize_skill
     nm = normalize_skill(name)
     skill, _ = Skill.objects.get_or_create(normalized_name=nm.lower(), defaults={'name': nm})
     return skill

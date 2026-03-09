@@ -1,7 +1,8 @@
 """Embedding service using Sentence Transformers. Caches model and vectors."""
 import logging
-from typing import List
+from typing import List, Union
 
+import numpy as np
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -14,18 +15,51 @@ def _get_model():
     if _model is None:
         from sentence_transformers import SentenceTransformer
         name = settings.EMBEDDING_CONFIG.get('MODEL_NAME', 'all-MiniLM-L6-v2')
-        _model = SentenceTransformer(name)
+        try:
+            # Force CPU to avoid meta device issues on some environments
+            _model = SentenceTransformer(name, device="cpu")
+        except NotImplementedError:
+            # Meta tensor / device errors: fail gracefully and log
+            logger.exception("Failed to initialize SentenceTransformer model; falling back to zero embeddings.")
+            _model = None
     return _model
 
 
-def encode(texts: List[str]) -> List[List[float]]:
-    """Batch encode texts to vectors."""
+def encode(
+    texts: List[str],
+    normalize: bool = False,
+    return_numpy: bool = False,
+) -> Union[List[List[float]], np.ndarray]:
+    """Batch encode texts to vectors. Optionally L2-normalize for cosine similarity (e.g. FAISS IndexFlatIP)."""
     if not texts:
+        if return_numpy:
+            return np.array([], dtype=np.float32)
         return []
     model = _get_model()
-    return model.encode(texts, convert_to_numpy=True).tolist()
+    if model is None:
+        # Fallback: return zero vectors with configured dimension to keep pipeline running
+        dim = settings.EMBEDDING_CONFIG.get('DIMENSION', 384)
+        if return_numpy:
+            return np.zeros((len(texts), dim), dtype=np.float32)
+        return [[0.0] * dim for _ in texts]
+
+    vectors = model.encode(
+        texts,
+        convert_to_numpy=True,
+        normalize_embeddings=normalize,
+    )
+    vectors = np.asarray(vectors, dtype=np.float32)
+    if vectors.ndim == 1:
+        vectors = np.expand_dims(vectors, 0)
+    if return_numpy:
+        return vectors
+    return vectors.tolist()
 
 
-def encode_single(text: str) -> List[float]:
+def encode_single(text: str, normalize: bool = False) -> List[float]:
     """Encode single text."""
-    return encode([text])[0] if text else [0.0] * settings.EMBEDDING_CONFIG.get('DIMENSION', 384)
+    if not text:
+        dim = settings.EMBEDDING_CONFIG.get('DIMENSION', 384)
+        return [0.0] * dim
+    result = encode([text], normalize=normalize, return_numpy=False)
+    return result[0]

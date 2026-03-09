@@ -22,7 +22,7 @@ def start_scheduler():
     _scheduler = BackgroundScheduler()
     _scheduler.add_job(run_job_sync, IntervalTrigger(hours=24), id='job_sync')
     _scheduler.start()
-    run_job_sync()
+    #run_job_sync()
     logger.info("Job scheduler started")
 
 

@@ -9,10 +9,8 @@ from apps.skills.models import Skill, UserSkill
 from apps.roles.models import Role, RoleSkill
 from apps.embeddings.models import RoleEmbedding, SkillEmbedding
 from core.services.embedding_service import encode_single, encode
-from core.services.faiss_service import get_faiss_index
-from core.services.ranking_service import re_rank
-from core.services.skill_gap_service import compute_skill_gap
 from core.services.learning_recommendation_service import get_courses_for_skills
+from apps.roles.services import get_faiss_index, re_rank, compute_skill_gap
 
 
 @api_view(['GET'])

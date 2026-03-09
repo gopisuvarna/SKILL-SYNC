@@ -2,7 +2,7 @@
 from django.core.management.base import BaseCommand
 from apps.roles.models import Role, RoleSkill
 from apps.skills.models import Skill
-from core.services.skill_extractor import normalize_skill
+from apps.skills.services import normalize_skill
 
 
 def get_or_create_skill(name: str):
